@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent 设计问答 · 双库 RAG</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%232f6feb'/><text x='16' y='23' font-size='20' font-family='sans-serif' font-weight='700' fill='white' text-anchor='middle'>A</text></svg>" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">A</span>
+        <div>
+          <h1>Agent 设计问答</h1>
+          <p class="sub">《智能体设计模式》 × 《深入理解 AI Agent》· 检索增强问答</p>
+        </div>
+      </div>
+      <div class="status" id="status">
+        <span class="badge" id="badge-route">未开始</span>
+        <span class="muted" id="badge-meta"></span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="chat-panel">
+        <div class="messages" id="messages">
+          <div class="msg assistant">
+            <div class="bubble">
+              <p>你好！我是「Agent 设计」问答助手。</p>
+              <p>我会先判断你的问题属于<strong>设计模式（怎么做）</strong>还是<strong>深入理解（为什么）</strong>，
+                 再到对应书目中检索，并在回答末尾标注<strong>书名 · 章节 · 页码 · 段落</strong>。</p>
+              <p>试试下面的问题：</p>
+              <div class="samples">
+                <button class="sample">提示链模式适合什么场景？</button>
+                <button class="sample">为什么上下文工程决定了 Agent 的能力上限？</button>
+                <button class="sample">反思模式和多智能体协作有什么区别？</button>
+                <button class="sample">深入理解一下 MCP 的原理</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form class="composer" id="composer">
+          <input id="question" type="text" placeholder="问点什么，例如：护栏模式怎么落地？" autocomplete="off" />
+          <button type="submit" id="send">发送</button>
+        </form>
+        <p class="hint">提示：问题里带上书名可强制指定书目，例如“《深入理解 AI Agent》里 RAG 怎么讲”。</p>
+      </section>
+
+      <aside class="sources-panel">
+        <h2>引用出处</h2>
+        <p class="muted small" id="sources-empty">回答后在这里展示引用的书 / 章 / 页 / 段。</p>
+        <div id="sources"></div>
+      </aside>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

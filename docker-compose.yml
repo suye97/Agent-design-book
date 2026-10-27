@@ -1,0 +1,44 @@
+name: agent-design-qa
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        # 国内服务器可改为 https://mirrors.aliyun.com/pypi/simple/
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+    image: agent-design-qa:${APP_VERSION:-latest}
+    container_name: agent-design-qa
+    env_file:
+      - .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: "8000"
+      TZ: Asia/Shanghai
+      # 单 worker 最稳（每个 worker 各自持有 Milvus 连接与进程内缓存）
+      WEB_CONCURRENCY: "${WEB_CONCURRENCY:-1}"
+    volumes:
+      - ./data:/app/data      # 必须包含 chunks.jsonl（/api/stats、/api/books 用）
+      - ./logs:/app/logs      # 引用审计日志（按日 JSONL）
+    ports:
+      # 只绑定回环地址，公网访问统一走 nginx / 云负载均衡
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4).status==200 else 1)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 25s
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+    # 若模型/Milvus 需要走代理，可在这里追加 HTTPS_PROXY 等变量
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"

@@ -1,0 +1,49 @@
+# 「Agent 设计」问答 Agent —— systemd 裸机部署单元
+# 安装：
+#   sudo cp deploy/agent-design.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now agent-design
+#   sudo journalctl -u agent-design -f
+#
+# 前置约定：
+#   - 代码在 /opt/agent-design-book，虚拟环境在 /opt/agent-design-book/.venv
+#   - 环境变量在 /opt/agent-design-book/.env（权限 600）
+#   - data/chunks.jsonl 已就位（/api/stats、/api/books 依赖）
+#   - 对外由宿主机 nginx 反代，应用只监听 127.0.0.1:8000
+
+[Unit]
+Description=Agent Design QA (RAG over two books)
+Documentation=file:/opt/agent-design-book/docs/DEPLOY.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=agentqa
+Group=agentqa
+WorkingDirectory=/opt/agent-design-book
+EnvironmentFile=/opt/agent-design-book/.env
+Environment=PYTHONUNBUFFERED=1
+Environment=TZ=Asia/Shanghai
+# 自检失败不阻塞启动（失败原因看日志）
+ExecStartPre=-/opt/agent-design-book/.venv/bin/python -m app.cli check
+ExecStart=/opt/agent-design-book/.venv/bin/python -m uvicorn app.main:app \
+    --host 127.0.0.1 --port 8000 \
+    --workers 1 \
+    --proxy-headers --forwarded-allow-ips=127.0.0.1 \
+    --log-level info
+Restart=always
+RestartSec=3
+TimeoutStopSec=20
+KillSignal=SIGTERM
+
+# 基础加固
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/agent-design-book/data /opt/agent-design-book/logs /opt/agent-design-book/docs
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,28 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+.env.*
+!.env.example
+.tmp/
+data/
+logs/
+*.log
+.DS_Store
+
+# 部署产物 / 本地环境
+deploy/certs/
+*.tar.gz
+pytest-of-*/
+.tmp*/
+pip-*/
+.idea/
+.claude/
+
+# 证书 / 私钥（公开证书也不必入库）
+*.pem
+*.crt
+*.key
+
+dist/

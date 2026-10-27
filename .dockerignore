@@ -1,0 +1,42 @@
+# 构建上下文排除项：镜像只带运行时代码
+.venv/
+.git/
+.gitignore
+.idea/
+.claude/
+.pytest_cache/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# 本地数据与日志（生产通过 volume 挂载）
+data/
+logs/
+*.sqlite3
+*.sqlite3-journal
+tmp/
+.tmp/
+pytest-of-*/
+
+# 原始语料：运行时不需要；只有“在服务器上重新入库”时才需要挂载 PDF
+*.pdf
+
+# 测试与开发文件
+tests/
+scripts/acceptance.py
+pyproject.toml
+test_main.http
+*.md
+!requirements.txt
+
+# 密钥绝不进镜像
+.env
+.env.*
+!.env.example
+
+# Docker 自身
+Dockerfile
+.dockerignore
+docker-compose*.yml
+deploy/docker-compose.nginx.yml

@@ -1,0 +1,27 @@
+#!/bin/sh
+# 提交前敏感信息扫描：API key / 公网 IP / 自有域名 / 默认口令 / 私钥。
+# 安装：git config core.hooksPath .githooks（或运行 scripts/install_git_hooks.sh）
+set -e
+
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo ".")
+cd "$ROOT"
+
+# 优先使用项目虚拟环境（Windows 与 Linux 两种布局），避免命中 Windows 的 python3 占位程序
+if [ -x ".venv/bin/python" ]; then
+    exec ".venv/bin/python" scripts/check_secrets.py --staged
+fi
+if [ -x ".venv/Scripts/python.exe" ]; then
+    exec ".venv/Scripts/python.exe" scripts/check_secrets.py --staged
+fi
+
+for candidate in python python3 py; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+        if [ "$candidate" = "py" ]; then
+            exec py -3 scripts/check_secrets.py --staged
+        fi
+        exec "$candidate" scripts/check_secrets.py --staged
+    fi
+done
+
+echo "[secret-scan] 未找到可用的 Python，跳过本地检查；CI 仍会执行 scripts/check_secrets.py --all" >&2
+exit 0

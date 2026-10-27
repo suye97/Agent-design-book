@@ -1,0 +1,47 @@
+# PyCharm HTTP Client：本项目接口快速验证
+# 先启动：python -m app.cli serve
+
+GET http://127.0.0.1:8000/api/health
+Accept: application/json
+
+###
+
+POST http://127.0.0.1:8000/api/chat
+Content-Type: application/json
+
+{
+  "question": "提示链模式适合什么场景？"
+}
+
+###
+
+POST http://127.0.0.1:8000/api/chat
+Content-Type: application/json
+
+{
+  "question": "为什么上下文工程决定了 Agent 的能力上限？",
+  "top_k": 6
+}
+
+###
+
+POST http://127.0.0.1:8000/api/search
+Content-Type: application/json
+
+{
+  "query": "MCP 与工具函数调用的区别",
+  "book": "design",
+  "top_k": 5
+}
+
+###
+
+GET http://127.0.0.1:8000/api/stats
+Accept: application/json
+
+###
+
+GET http://127.0.0.1:8000/api/books
+Accept: application/json
+
+###
